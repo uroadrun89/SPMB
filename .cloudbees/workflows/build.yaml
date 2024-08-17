@@ -17,7 +17,7 @@ jobs:
         uses: docker://python:3.13.0a4-alpine3.19
         run: |-
           # Install build dependencies including Cython and compilers
-          apk add --no-cache build-base gcc musl-dev cython3
+          apk add --no-cache build-base gcc musl-dev cython
           
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
