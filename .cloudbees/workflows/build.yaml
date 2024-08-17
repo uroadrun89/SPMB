@@ -19,6 +19,9 @@ jobs:
           # Install build dependencies including Cython and compilers
           apk add --no-cache build-base gcc musl-dev cython
           
+          # Create a symlink for cython3 if the script requires it
+          ln -s /usr/bin/cython /usr/bin/cython3
+          
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
           pip install -r requirements.txt
