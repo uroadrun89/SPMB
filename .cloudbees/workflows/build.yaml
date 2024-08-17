@@ -12,12 +12,18 @@ jobs:
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
+      
       - name: install packages
         uses: docker://python:3.13.0a4-alpine3.19
         run: |-
+          # Install build dependencies
+          apk add --no-cache build-base gcc musl-dev
+          
+          # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      
       - name: scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
         with:
-          language: LANGUAGE_PYTHON
+          language: python
