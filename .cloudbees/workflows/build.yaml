@@ -14,58 +14,57 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: setup environment, install packages, and run application
-        uses: docker.io/debian:bookworm-slim
-        with:
-          script: |-
-            #!/bin/bash
-            set -e
+        uses: docker://debian/bookworm-slim
+        run: |-
+          #!/bin/bash
+          set -e
 
-            # Set non-interactive mode for apt-get
-            export DEBIAN_FRONTEND=noninteractive
+          # Set non-interactive mode for apt-get
+          export DEBIAN_FRONTEND=noninteractive
 
-            # Update package index and upgrade packages
-            apt-get update
-            apt-get upgrade -y
+          # Update package index and upgrade packages
+          apt-get update
+          apt-get upgrade -y
 
-            # Install necessary packages including wget, curl, and Python 3.11
-            apt-get install -y \
-              wget \
-              curl \
-              gnupg \
-              lsb-release \
-              software-properties-common \
-              build-essential \
-              python3.11 \
-              python3.11-dev \
-              python3.11-distutils \
-              python3-venv
+          # Install necessary packages including wget, curl, and Python 3.11
+          apt-get install -y \
+            wget \
+            curl \
+            gnupg \
+            lsb-release \
+            software-properties-common \
+            build-essential \
+            python3.11 \
+            python3.11-dev \
+            python3.11-distutils \
+            python3-venv
 
-            # Install pip for Python 3.11
-            curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-            python3.11 /tmp/get-pip.py
+          # Install pip for Python 3.11
+          curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+          python3.11 /tmp/get-pip.py
 
-            # Verify pip installation
-            python3.11 -m pip --version || { echo "pip not installed"; exit 1; }
+          # Verify pip installation
+          python3.11 -m pip --version || { echo "pip not installed"; exit 1; }
 
-            # Create a virtual environment
-            python3.11 -m venv /opt/venv
+          # Create a virtual environment
+          python3.11 -m venv /opt/venv
 
-            # Upgrade pip and install Python packages within the virtual environment
-            /opt/venv/bin/pip install --upgrade pip
-            /opt/venv/bin/pip install cython html5lib -r requirements.txt
+          # Upgrade pip and install Python packages within the virtual environment
+          /opt/venv/bin/pip install --upgrade pip
+          /opt/venv/bin/pip install cython html5lib -r requirements.txt
 
-            # Add Cloudflare Warp repository and install the client
-            curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
-            echo "deb http://pkg.cloudflareclient.com/ bookworm main" | tee /etc/apt/sources.list.d/cloudflare-client.list
-            apt-get update
-            apt-get install -y cloudflare-warp
+          # Add Cloudflare Warp repository and install the client
+          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
+          echo "deb http://pkg.cloudflareclient.com/ bookworm main" | tee /etc/apt/sources.list.d/cloudflare-client.list
+          apt-get update
+          apt-get install -y cloudflare-warp
 
-            # Configure and connect Cloudflare Warp without systemd
-            warp-cli register || true
-            warp-cli connect || true
+          # Configure and connect Cloudflare Warp without systemd
+          warp-cli register || true
+          warp-cli connect || true
 
-            # Run the Python application using the virtual environment
-            /opt/venv/bin/python main.py
+          # Run the Python application using the virtual environment
+          /opt/venv/bin/python main.py
 
       - name: scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
