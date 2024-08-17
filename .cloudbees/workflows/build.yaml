@@ -41,24 +41,37 @@ jobs:
         run: |-
           # Ensure /tmp has the right permissions
           chmod 1777 /tmp
-          
+
           # Create a directory to hold your application
           mkdir -p /tmp/app
 
           # Copy application files to /tmp/app
-          cp -r /cloudbees/workspace/* /tmp/app
+          cp -r /cloudbees/workspace/* /tmp/app || { echo "Failed to copy files to /tmp/app"; exit 1; }
 
-          # Change to the application directory
-          cd /tmp/app
+          # Verify that files are copied and directory exists
+          if [ ! -d "/tmp/app" ]; then
+            echo "/tmp/app directory does not exist. Exiting."
+            exit 1
+          fi
+
+          if [ -z "$(ls -A /tmp/app)" ]; then
+            echo "/tmp/app directory is empty. Exiting."
+            exit 1
+          fi
 
       - name: run application
         uses: docker://python:3.11-alpine
         run: |-
-          # Change to the application directory
-          cd /tmp/app
+          # Verify that /tmp/app exists and is not empty before running the script
+          if [ -d "/tmp/app" ] && [ "$(ls -A /tmp/app)" ]; then
+            cd /tmp/app || { echo "Failed to change directory to /tmp/app"; exit 1; }
 
-          # Run the Python application
-          python main.py
+            # Run the Python application
+            python main.py || { echo "Python script execution failed"; exit 1; }
+          else
+            echo "/tmp/app directory does not exist or is empty. Exiting."
+            exit 1
+          fi
 
       - name: scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
