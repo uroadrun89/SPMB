@@ -24,12 +24,13 @@ jobs:
           apt-get update
           apt-get upgrade -y
 
-          # Install necessary packages including sudo and curl
+          # Install necessary packages including sudo, curl, and wget
           apt-get install -y \
             apt-utils \
             software-properties-common \
             build-essential \
             curl \
+            wget \
             bash \
             iproute2 \
             procps \
