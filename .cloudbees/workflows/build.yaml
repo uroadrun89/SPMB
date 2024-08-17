@@ -1,48 +1,58 @@
-version: '1'
-steps:
-  - name: Checkout
-    type: checkout
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: Workflow
+metadata:
+  name: build
+spec:
+  triggers:
+    - type: push
+      branches:
+        - '**'
+  jobs:
+    - name: build
+      steps:
+        - name: Checkout
+          type: checkout
 
-  - name: Setup Environment
-    type: shell
-    script: |
-      sudo apt-get update
-      sudo apt-get upgrade -y
-      sudo apt-get install -y \
-          software-properties-common \
-          build-essential \
-          curl \
-          wget \
-          bash \
-          iproute2 \
-          procps \
-          sudo \
-          tzdata \
-          cron
+        - name: Setup Environment
+          type: shell
+          script: |
+            sudo apt-get update
+            sudo apt-get upgrade -y
+            sudo apt-get install -y \
+                software-properties-common \
+                build-essential \
+                curl \
+                wget \
+                bash \
+                iproute2 \
+                procps \
+                sudo \
+                tzdata \
+                cron
 
-      sudo add-apt-repository ppa:deadsnakes/ppa
-      sudo apt-get update
-      sudo apt-get install -y \
-          python3.11 \
-          python3.11-dev \
-          python3.11-distutils
+            sudo add-apt-repository ppa:deadsnakes/ppa
+            sudo apt-get update
+            sudo apt-get install -y \
+                python3.11 \
+                python3.11-dev \
+                python3.11-distutils
 
-      curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-      sudo python3.11 /tmp/get-pip.py
-      python3.11 -m pip install cython html5lib
-      python3.11 -m pip install -r requirements.txt
+            curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+            sudo python3.11 /tmp/get-pip.py
+            python3.11 -m pip install cython html5lib
+            python3.11 -m pip install -r requirements.txt
 
-  - name: Run CFwarp Script
-    type: shell
-    script: |
-      curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
-      echo -e "2\n1\n3" | tee /tmp/input.txt > /dev/null
-      sudo bash /tmp/CFwarp.sh < /tmp/input.txt
+        - name: Run CFwarp Script
+          type: shell
+          script: |
+            curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
+            echo -e "2\n1\n3" | tee /tmp/input.txt > /dev/null
+            sudo bash /tmp/CFwarp.sh < /tmp/input.txt
 
-  - name: Run Python Application
-    type: shell
-    script: python3.11 main.py
+        - name: Run Python Application
+          type: shell
+          script: python3.11 main.py
 
-  - name: SonarQube Scan
-    type: shell
-    script: sonar-scanner
+        - name: SonarQube Scan
+          type: shell
+          script: sonar-scanner
