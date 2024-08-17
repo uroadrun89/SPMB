@@ -25,12 +25,15 @@ jobs:
             gcc \
             g++ \
             libffi-dev \
-            openblas-dev
-
-          # Install Cython using pip
-          python -m pip install --upgrade pip
+            openblas-dev \
+            make \
+            autoconf \
+            automake \
+            libtool \
+            cython
 
           # Upgrade pip and install Python packages
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: scan
