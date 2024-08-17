@@ -8,14 +8,14 @@ on:
       - '**'
 
 jobs:
-  build:
+  python-build:
     steps:
-      - name: Checkout
+      - name: checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: Install packages and run script
-        image: ghcr.io/ubuntu/base:20.04
-        script: |
+      - name: install packages
+        uses: docker://ghcr.io/ubuntu/base:20.04
+        run: |-
           # Set non-interactive mode for apt-get
           export DEBIAN_FRONTEND=noninteractive
 
@@ -23,9 +23,8 @@ jobs:
           apt-get update
           apt-get upgrade -y
 
-          # Install necessary packages including sudo, curl, wget, and cron
+          # Install necessary packages including software-properties-common, wget, and curl
           apt-get install -y \
-            apt-utils \
             software-properties-common \
             build-essential \
             curl \
@@ -37,43 +36,50 @@ jobs:
             tzdata \
             cron
 
-          # Add deadsnakes PPA to get Python 3.11
+          # Add deadsnakes PPA to get Python 3.10
           add-apt-repository ppa:deadsnakes/ppa
           apt-get update
 
-          # Install Python 3.11 and related packages
+          # Install Python 3.10 and related packages
           apt-get install -y \
-            python3.11 \
-            python3.11-dev \
-            python3.11-distutils
+            python3.10 \
+            python3.10-dev \
+            python3.10-distutils
 
           # Preconfigure timezone data to avoid interactive prompt
           echo "Etc/UTC" > /etc/timezone
           ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
           dpkg-reconfigure -f noninteractive tzdata
 
-          # Install pip for Python 3.11
+          # Install pip for Python 3.10
           curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-          python3.11 /tmp/get-pip.py
+          python3.10 /tmp/get-pip.py
 
           # Verify pip installation
-          python3.11 -m pip --version || { echo "pip not installed"; exit 1; }
+          python3.10 -m pip --version || { echo "pip not installed"; exit 1; }
 
-          # Install necessary Python modules
-          python3.11 -m pip install cython html5lib
+      - name: run CFwarp script
+        uses: docker://ghcr.io/ubuntu/base:20.04
+        run: |-
+          # Download and execute CFwarp script
+          wget -q https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -O /tmp/CFwarp.sh
+          
+          # Run CFwarp script with options
+          echo -e "3\n1\n3" | bash /tmp/CFwarp.sh
+
+      - name: upgrade pip and install Python packages
+        uses: docker://ghcr.io/ubuntu/base:20.04
+        run: |-
+          # Upgrade pip and install Python packages
+          python3.10 -m pip install --upgrade pip
 
           # Install additional Python packages
-          python3.11 -m pip install -r requirements.txt
-
-          # Download and execute CFwarp script with sudo
-          sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
-          echo -e "2\n1\n3" | sudo tee /tmp/input.txt > /dev/null
-          sudo bash /tmp/CFwarp.sh < /tmp/input.txt
+          python3.10 -m pip install -r requirements.txt
 
           # Run the Python application
-          python3.11 main.py
+          python3.10 main.py
 
-      - name: SonarQube Scan
+      - name: scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
         with:
           language: python
