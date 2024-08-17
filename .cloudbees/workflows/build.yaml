@@ -32,7 +32,6 @@ jobs:
 
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
-          pip install numpy==1.23.5  # Using a specific, compatible version of NumPy
 
           # Install additional Python packages
           pip install -r requirements.txt
