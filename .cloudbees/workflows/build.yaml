@@ -14,7 +14,7 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: install packages
-        uses: docker://python:3.13.0a4-alpine3.19
+        uses: docker://python:3.11-alpine
         run: |-
           # Update package index and install necessary packages
           apk update
@@ -26,11 +26,13 @@ jobs:
             gcc \
             g++ \
             libffi-dev \
-            openblas-dev
+            openblas-dev \
+            lapack-dev \
+            py3-pip
 
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
-          pip install numpy==1.23.5  # Use a specific, compatible NumPy version
+          pip install numpy==1.23.5  # Using a specific, compatible version of NumPy
 
           # Install additional Python packages
           pip install -r requirements.txt
