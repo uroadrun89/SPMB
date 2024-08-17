@@ -51,14 +51,3 @@ jobs:
             pip3.10 install -r requirements.txt
             python3.10 -m pip install --upgrade pip
             python3.10 main.py
-
-workflows:
-  build-and-deploy:
-    jobs:
-      - setup-environment
-      - test-python:
-          requires:
-            - setup-environment
-      - deployment:
-          requires:
-            - test-python
