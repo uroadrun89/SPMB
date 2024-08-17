@@ -53,9 +53,9 @@ jobs:
             git clone https://github.com/uroadrun89/SPMA.git /tmp/SPMA
             cd /tmp/SPMA
             export PATH=$PATH:/home/semaphore/.local/bin
-            pip3.10 install -r requirements.txt
-            python3.10 -m pip install --upgrade pip
-            python3.10 main.py
+            pip install -r requirements.txt
+            python -m pip install --upgrade pip
+            python main.py
 
 workflows:
   build-and-deploy:
