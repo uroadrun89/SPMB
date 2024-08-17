@@ -62,10 +62,7 @@ jobs:
           python3.11 -m pip install --upgrade pip
           python3.11 -m pip install cython html5lib -r requirements.txt
 
-      - name: run CFwarp script and Python application
-        uses: docker://ubuntu:22.04
-        run: |-
-          # Download and execute CFwarp script
+         # Download and execute CFwarp script
           wget -q https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -O /tmp/CFwarp.sh
           
           # Run CFwarp script with options
