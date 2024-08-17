@@ -14,7 +14,7 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: install packages and run script
-        uses: docker://python:3.11-slim
+        uses: docker://ubuntu:20.04
         run: |-
 
           # Update package index and upgrade packages
@@ -25,7 +25,8 @@ jobs:
           apt-get install -y \
             apt-utils \
             build-essential \
-            python3-dev \
+            python3.11 \
+            python3.11-dev \
             libffi-dev \
             libblas-dev \
             liblapack-dev \
@@ -35,6 +36,9 @@ jobs:
             procps \
             sudo \
             && apt-get clean
+
+          # Ensure pip for Python 3.11 is installed
+          apt-get install -y python3-pip
 
           # Verify curl installation
           curl --version || { echo "curl not installed"; exit 1; }
@@ -47,14 +51,14 @@ jobs:
           fi
 
           # Install Cython using pip
-          python -m pip install --upgrade pip
-          pip install cython
+          python3.11 -m pip install --upgrade pip
+          python3.11 -m pip install cython
 
           # Install additional Python packages
-          pip install -r requirements.txt
+          python3.11 -m pip install -r requirements.txt
 
           # Run the Python application
-          python main.py
+          python3.11 main.py
 
       - name: scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
