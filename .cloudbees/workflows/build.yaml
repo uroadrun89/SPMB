@@ -1,41 +1,16 @@
-apiVersion: automation.cloudbees.io/v1alpha1
-kind: workflow
-name: build
-
-on:
-  push:
-    branches:
-      - '**'
-
-jobs:
-  python-build:
-    steps:
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-
-      - name: install packages
-        uses: docker://python:3.13.0a4-alpine3.19
-        run: |-
-          # Update package index and install necessary packages
-          apk update
-          apk add --no-cache \
-            build-base \
-            cython \
-            python3-dev \
-            musl-dev \
-            gcc \
-            g++ \
-            libffi-dev \
-            openblas-dev
-
-          # Upgrade pip and install Python packages
-          python -m pip install --upgrade pip
-          pip install numpy==1.24.3  # Use a specific, compatible NumPy version
-
-          # Install additional Python packages
-          pip install -r requirements.txt
-
-      - name: scan
-        uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
-        with:
-          language: python
+uses: docker://python:3.13-alpine
+run: |-
+  apk update
+  apk add --no-cache \
+    build-base \
+    cython \
+    python3-dev \
+    musl-dev \
+    gcc \
+    g++ \
+    libffi-dev \
+    openblas-dev \
+    # Add the required packages
+  python -m pip install --upgrade pip
+  pip install numpy==1.23.5  # or any compatible version
+  pip install -r requirements.txt
