@@ -24,27 +24,19 @@ jobs:
           apt-get update
           apt-get upgrade -y
 
-          # Install necessary packages
+          # Install necessary packages and add PPA for Python 3.11
           apt-get install -y \
             apt-utils \
             software-properties-common \
             build-essential \
-            python3.11 \
-            python3.11-dev \
-            python3.11-distutils \
-            python3-pip \
-            libffi-dev \
-            libblas-dev \
-            liblapack-dev \
             curl \
             bash \
             iproute2 \
             procps \
             sudo \
-            tzdata \
-            && apt-get clean
+            tzdata
 
-          # Add the deadsnakes PPA to get Python 3.11
+          # Add deadsnakes PPA to get Python 3.11
           add-apt-repository ppa:deadsnakes/ppa
           apt-get update
 
