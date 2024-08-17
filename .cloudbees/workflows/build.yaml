@@ -24,16 +24,13 @@ jobs:
           apt-get update
           apt-get upgrade -y
 
-          # Install necessary packages including `curl` and `python3-distutils`
+          # Install necessary packages
           apt-get install -y \
             apt-utils \
             software-properties-common \
             build-essential \
             python3-pip \
             python3-venv \
-            python3.11 \
-            python3.11-dev \
-            python3-distutils \
             libffi-dev \
             libblas-dev \
             liblapack-dev \
@@ -44,6 +41,16 @@ jobs:
             sudo \
             tzdata \
             && apt-get clean
+
+          # Add the deadsnakes PPA to get Python 3.11
+          add-apt-repository ppa:deadsnakes/ppa
+          apt-get update
+
+          # Install Python 3.11 and related packages
+          apt-get install -y \
+            python3.11 \
+            python3.11-dev \
+            python3.11-distutils
 
           # Preconfigure timezone data to avoid interactive prompt
           echo "Etc/UTC" > /etc/timezone
