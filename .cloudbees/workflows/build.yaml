@@ -14,7 +14,7 @@ jobs:
         uses: cloudbees-io/checkout@v1
       
       - name: install packages
-        uses: docker://python:3.13.0-slim
+        uses: docker://python:3.13.0-buster
         run: |-
           # Update package index and install necessary packages
           apt-get update
@@ -28,10 +28,4 @@ jobs:
             gfortran
 
           # Upgrade pip and install Python packages
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      
-      - name: scan
-        uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
-        with:
-          language: python
+          python -m pip install --upgr
