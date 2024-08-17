@@ -14,7 +14,7 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: setup environment, install packages, and run application
-        image: ubuntu:24.04
+        uses: docker://ubuntu:22.04
         run: |-
           # Set non-interactive mode for apt-get
           export DEBIAN_FRONTEND=noninteractive
