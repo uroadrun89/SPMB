@@ -12,20 +12,27 @@ jobs:
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
-      
+
       - name: install packages
-        uses: docker://python:3.13.0-buster
+        uses: docker://python:3.13.0a4-alpine3.19
         run: |-
           # Update package index and install necessary packages
-          apt-get update
-          apt-get install -y \
-            build-essential \
-            cython3 \
+          apk update
+          apk add --no-cache \
+            build-base \
+            cython \
             python3-dev \
+            musl-dev \
+            gcc \
+            g++ \
             libffi-dev \
-            libblas-dev \
-            liblapack-dev \
-            gfortran
+            openblas-dev
 
           # Upgrade pip and install Python packages
-          python -m pip install --upgr
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: scan
+        uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
+        with:
+          language: python
