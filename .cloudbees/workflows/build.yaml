@@ -8,15 +8,14 @@ on:
       - '**'
 
 jobs:
-  python-build:
+  build:
     steps:
-      - name: checkout
+      - name: Checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: install packages and run script
-        uses: docker://ghcr.io/ubuntu/base:20.04
-        run: |-
-
+      - name: Install packages and run script
+        image: ghcr.io/ubuntu/base:20.04
+        script: |
           # Set non-interactive mode for apt-get
           export DEBIAN_FRONTEND=noninteractive
 
@@ -74,7 +73,7 @@ jobs:
           # Run the Python application
           python3.11 main.py
 
-      - name: scan
+      - name: SonarQube Scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
         with:
           language: python
