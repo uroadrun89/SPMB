@@ -16,11 +16,6 @@ jobs:
       - name: install packages and run script
         uses: docker://python:3.11-slim
         run: |-
-          # Ensure running as root
-          if [ "$(id -u)" -ne 0 ]; then
-            echo "This script must be run as root." >&2
-            exit 1
-          fi
 
           # Update package index and upgrade packages
           apt-get update
@@ -44,9 +39,6 @@ jobs:
           # Verify curl installation
           curl --version || { echo "curl not installed"; exit 1; }
 
-          # Verify pgrep installation
-          pgrep --version || { echo "pgrep not installed"; exit 1; }
-
           # Check if systemctl is needed or not
           if command -v systemctl >/dev/null 2>&1; then
             echo "systemctl is available"
@@ -57,12 +49,6 @@ jobs:
           # Install Cython using pip
           python -m pip install --upgrade pip
           pip install cython
-
-          # Download and execute CFwarp script
-          curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
-          chmod +x /tmp/CFwarp.sh
-          echo -e "2\n1\n3" > /tmp/input.txt
-          bash /tmp/CFwarp.sh < /tmp/input.txt
 
           # Install additional Python packages
           pip install -r requirements.txt
