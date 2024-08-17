@@ -1,5 +1,5 @@
 apiVersion: automation.cloudbees.io/v1alpha1
-kind: Workflow
+kind: workflow
 metadata:
   name: build
 spec:
