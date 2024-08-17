@@ -24,13 +24,16 @@ jobs:
           apt-get update
           apt-get upgrade -y
 
-          # Install necessary packages including `curl`
+          # Install necessary packages including `curl` and `python3-distutils`
           apt-get install -y \
             apt-utils \
             software-properties-common \
             build-essential \
             python3-pip \
             python3-venv \
+            python3.11 \
+            python3.11-dev \
+            python3-distutils \
             libffi-dev \
             libblas-dev \
             liblapack-dev \
@@ -46,14 +49,6 @@ jobs:
           echo "Etc/UTC" > /etc/timezone
           ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
           dpkg-reconfigure -f noninteractive tzdata
-
-          # Add deadsnakes PPA and install Python 3.11
-          add-apt-repository ppa:deadsnakes/ppa
-          apt-get update
-          apt-get install -y \
-            python3.11 \
-            python3.11-dev \
-            && apt-get clean
 
           # Verify curl installation
           curl --version || { echo "curl not installed"; exit 1; }
