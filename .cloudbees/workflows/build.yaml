@@ -36,9 +36,27 @@ jobs:
           # Install additional Python packages
           pip install -r requirements.txt
 
+      - name: prepare environment
+        uses: docker://python:3.11-alpine
+        run: |-
+          # Ensure /tmp has the right permissions
+          chmod 1777 /tmp
+          
+          # Create a directory to hold your application
+          mkdir -p /tmp/app
+
+          # Copy application files to /tmp/app
+          cp -r /cloudbees/workspace/* /tmp/app
+
+          # Change to the application directory
+          cd /tmp/app
+
       - name: run application
         uses: docker://python:3.11-alpine
         run: |-
+          # Change to the application directory
+          cd /tmp/app
+
           # Run the Python application
           python main.py
 
