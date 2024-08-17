@@ -14,23 +14,20 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: install packages and run script
-        uses: docker://python:3.11-alpine
+        uses: docker://python:3.11-slim
         run: |-
           # Update package index and install necessary packages
-          apk update
-          apk add --no-cache \
-            build-base \
+          apt-get update
+          apt-get install -y \
+            build-essential \
             cython \
             python3-dev \
-            musl-dev \
-            gcc \
-            g++ \
             libffi-dev \
-            openblas-dev \
-            lapack-dev \
-            py3-pip \
+            libblas-dev \
+            liblapack-dev \
+            curl \
             bash \
-            curl  # Ensure curl is installed
+            && apt-get clean
 
           # Verify curl installation
           curl --version
