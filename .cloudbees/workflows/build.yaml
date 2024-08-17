@@ -26,7 +26,8 @@ jobs:
             gcc \
             g++ \
             libffi-dev \
-            openblas-dev
+            openblas-dev \
+            py3-cython
 
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
