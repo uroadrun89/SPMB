@@ -1,20 +1,17 @@
 version: 2.1
 
 executors:
-  ubuntu-executor:
-    machine:
-      image: ubuntu-2004:current
-
   python-docker-executor:
     docker:
       - image: cimg/python:3.8-node
 
 jobs:
   setup-environment:
-    executor: ubuntu-executor
+    executor: python-docker-executor
     steps:
+      - checkout
       - run:
-          name: Install Dependencies
+          name: Install System Dependencies
           command: |
             sudo apt-get update
             sudo apt-get install -y libsqlite3-dev git curl nodejs vim
@@ -28,22 +25,22 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Python Dependencies
+          name: Setup Python Virtual Environment and Install Dependencies
           command: |
             python -m venv venv
-            . venv/bin/activate
+            source venv/bin/activate
             pip install --upgrade pip
             pip install -r requirements.txt
       - run:
           name: Run Tests
           command: |
-            . venv/bin/activate
-            pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
+            source venv/bin/activate
+            pytest --junitxml=junit.xml || ([ $? -eq 5 ] && echo 'Did not find any tests to run.')
       - store_test_results:
           path: junit.xml
 
   deployment:
-    executor: ubuntu-executor
+    executor: python-docker-executor
     steps:
       - run:
           name: Configure DNS and Run Deployment Script
