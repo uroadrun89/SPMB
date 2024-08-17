@@ -1,11 +1,4 @@
-version: 1.0.{build}
-os: windows
-image: Visual Studio 2022
-configuration: Release
-
-build:
-  script:
-  version: v1.0
+version: v1.0
 name: Initial Pipeline
 agent:
   machine:
