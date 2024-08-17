@@ -14,23 +14,18 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: install packages
-        uses: docker://python:3.13.0a4-alpine3.19
+        uses: docker://python:3.13-slim
         run: |-
           # Update package index and install necessary packages
-          apk update
-          apk add --no-cache \
-            build-base \
+          apt-get update
+          apt-get install -y \
+            build-essential \
             python3-dev \
-            musl-dev \
-            gcc \
-            g++ \
             libffi-dev \
-            openblas-dev \
-            make \
-            autoconf \
-            automake \
-            libtool \
-            cython
+            libblas-dev \
+            liblapack-dev \
+            cython \
+            && rm -rf /var/lib/apt/lists/*
 
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
