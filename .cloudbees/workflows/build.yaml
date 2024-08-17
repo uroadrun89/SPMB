@@ -35,46 +35,7 @@ jobs:
 
           # Install additional Python packages
           pip install -r requirements.txt
-
-      - name: prepare environment
-        uses: docker://python:3.11-alpine
-        run: |-
-          # Ensure /tmp has the right permissions
-          chmod 1777 /tmp
-
-          # Create a directory to hold your application
-          mkdir -p /tmp/app
-
-          # Verify that the directory was created
-          if [ ! -d "/tmp/app" ]; then
-            echo "/tmp/app directory creation failed. Exiting."
-            exit 1
-          fi
-
-          # Copy application files to /tmp/app
-          cp -r /cloudbees/workspace/* /tmp/app || { echo "Failed to copy files to /tmp/app"; exit 1; }
-
-          # Verify that files are copied
-          if [ -z "$(ls -A /tmp/app)" ]; then
-            echo "/tmp/app directory is empty after copying files. Exiting."
-            exit 1
-          fi
-
-          echo "Files successfully copied to /tmp/app."
-
-      - name: run application
-        uses: docker://python:3.11-alpine
-        run: |-
-          # Verify that /tmp/app exists and is not empty before running the script
-          if [ -d "/tmp/app" ] && [ "$(ls -A /tmp/app)" ]; then
-            cd /tmp/app || { echo "Failed to change directory to /tmp/app"; exit 1; }
-
-            # Run the Python application
-            python main.py || { echo "Python script execution failed"; exit 1; }
-          else
-            echo "/tmp/app directory does not exist or is empty. Exiting."
-            exit 1
-          fi
+          python main.py
 
       - name: scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
