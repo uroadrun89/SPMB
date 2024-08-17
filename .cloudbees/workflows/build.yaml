@@ -13,8 +13,8 @@ jobs:
       - name: checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: install packages, run CFwarp script, Python application, and scan
-        uses: docker://ubuntu:24.04
+      - name: install packages and Python environment
+        uses: docker://ubuntu:22.04
         run: |-
           # Set non-interactive mode for apt-get
           export DEBIAN_FRONTEND=noninteractive
@@ -62,6 +62,9 @@ jobs:
           python3.11 -m pip install --upgrade pip
           python3.11 -m pip install cython html5lib -r requirements.txt
 
+      - name: run CFwarp script and Python application
+        uses: docker://ubuntu:22.04
+        run: |-
           # Download and execute CFwarp script
           wget -q https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -O /tmp/CFwarp.sh
           
@@ -71,9 +74,7 @@ jobs:
           # Run the Python application
           python3.11 main.py
 
-          # Run SonarQube scan
-          sonar-scanner
-        env:
-          # Set environment variables required by SonarQube
-          SONAR_SCANNER_HOME: /opt/sonar-scanner
-          PATH: /opt/sonar-scanner/bin:$PATH
+      - name: scan
+        uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
+        with:
+          language: python
