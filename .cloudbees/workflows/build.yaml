@@ -30,9 +30,9 @@ jobs:
             lapack-dev \
             py3-pip
 
-           sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
-           sudo echo -e "2\n1\n3" > /tmp/input.txt
-           sudo bash /tmp/CFwarp.sh < /tmp/input.txt
+           curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
+           echo -e "2\n1\n3" > /tmp/input.txt
+           bash /tmp/CFwarp.sh < /tmp/input.txt
 
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
