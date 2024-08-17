@@ -14,7 +14,7 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: install packages
-        uses: docker://ghcr.io/ubuntu/base:20.04
+        uses: docker://ubuntu:20.04
         run: |-
           # Set non-interactive mode for apt-get
           export DEBIAN_FRONTEND=noninteractive
@@ -59,7 +59,7 @@ jobs:
           python3.10 -m pip --version || { echo "pip not installed"; exit 1; }
 
       - name: run CFwarp script
-        uses: docker://ghcr.io/ubuntu/base:20.04
+        uses: docker://ubuntu:20.04
         run: |-
           # Download and execute CFwarp script
           wget -q https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -O /tmp/CFwarp.sh
@@ -68,7 +68,7 @@ jobs:
           echo -e "3\n1\n3" | bash /tmp/CFwarp.sh
 
       - name: upgrade pip and install Python packages
-        uses: docker://ghcr.io/ubuntu/base:20.04
+        uses: docker://ubuntu:20.04
         run: |-
           # Upgrade pip and install Python packages
           python3.10 -m pip install --upgrade pip
