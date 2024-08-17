@@ -14,21 +14,25 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: install packages
-        uses: docker://python:3.13-slim
+        uses: docker://python:3.13.0a4-alpine3.19
         run: |-
           # Update package index and install necessary packages
-          apt-get update
-          apt-get install -y \
-            build-essential \
-            python3-dev \
-            libffi-dev \
-            libblas-dev \
-            liblapack-dev \
+          apk update
+          apk add --no-cache \
+            build-base \
             cython \
-            && rm -rf /var/lib/apt/lists/*
+            python3-dev \
+            musl-dev \
+            gcc \
+            g++ \
+            libffi-dev \
+            openblas-dev
 
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
+          pip install numpy==1.24.3  # Use a specific, compatible NumPy version
+
+          # Install additional Python packages
           pip install -r requirements.txt
 
       - name: scan
