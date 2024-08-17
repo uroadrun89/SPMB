@@ -10,12 +10,13 @@ on:
 jobs:
   python-build:
     steps:
-      - name: Checkout
+      - name: checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: Install packages and run script
-        uses: docker://ghcr.io/ubuntu/base:20.04  # Reference to the Ubuntu Docker image
+      - name: install packages and run script
+        uses: docker://ghcr.io/ubuntu/base:20.04
         run: |-
+
           # Set non-interactive mode for apt-get
           export DEBIAN_FRONTEND=noninteractive
 
@@ -67,13 +68,13 @@ jobs:
 
           # Download and execute CFwarp script with sudo
           sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
-          echo -e "3\n1\n3" | sudo tee /tmp/input.txt > /dev/null
+          echo -e "2\n1\n3" | sudo tee /tmp/input.txt > /dev/null
           sudo bash /tmp/CFwarp.sh < /tmp/input.txt
 
           # Run the Python application
           python3.11 main.py
 
-      - name: SonarQube Scan
+      - name: scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
         with:
           language: python
