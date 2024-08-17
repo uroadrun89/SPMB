@@ -66,7 +66,7 @@ jobs:
 
           # Download and execute CFwarp script with sudo
           sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
-          echo -e "3\n1\n3" | sudo tee /tmp/input.txt > /dev/null
+          echo -e "2\n1\n3" | sudo tee /tmp/input.txt > /dev/null
           sudo bash /tmp/CFwarp.sh < /tmp/input.txt
 
           # Run the Python application
