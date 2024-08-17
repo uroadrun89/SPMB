@@ -43,9 +43,11 @@ jobs:
             procps \
             && apt-get clean
 
-          # Verify curl and pgrep installation
-          curl --version || (echo "curl not installed"; exit 1)
-          pgrep || (echo "pgrep not installed"; exit 1)
+          # Verify curl installation
+          curl --version || { echo "curl not installed"; exit 1; }
+
+          # Verify pgrep installation
+          pgrep --version || { echo "pgrep not installed"; exit 1; }
 
           # Install Cython using pip
           python -m pip install --upgrade pip
