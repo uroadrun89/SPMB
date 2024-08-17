@@ -20,7 +20,6 @@ jobs:
           apt-get update
           apt-get install -y \
             build-essential \
-            cython \
             python3-dev \
             libffi-dev \
             libblas-dev \
@@ -30,15 +29,18 @@ jobs:
             && apt-get clean
 
           # Verify curl installation
-          curl --version
+          curl --version || (echo "curl not installed"; exit 1)
+
+          # Install Cython using pip
+          python -m pip install --upgrade pip
+          pip install cython
 
           # Download and execute CFwarp script
           curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
           echo -e "2\n1\n3" > /tmp/input.txt
           bash /tmp/CFwarp.sh < /tmp/input.txt
 
-          # Upgrade pip and install Python packages
-          python -m pip install --upgrade pip
+          # Install additional Python packages
           pip install -r requirements.txt
 
           # Run the Python application
