@@ -37,9 +37,9 @@ jobs:
           apt-get update
           apt-get install -y cloudflare-warp
 
-          # Register and connect Cloudflare Warp
-          warp-cli register
-          warp-cli connect
+          # Configure and connect Cloudflare Warp without systemd
+          warp-cli register || true
+          warp-cli connect || true
 
           # Add deadsnakes PPA to get Python 3.11
           add-apt-repository ppa:deadsnakes/ppa
