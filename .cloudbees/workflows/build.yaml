@@ -14,15 +14,11 @@ jobs:
         uses: cloudbees-io/checkout@v1
       
       - name: install packages
-        uses: docker://python:3.13-buster
+        uses: docker://python:3.13.0a4-alpine3.19
         run: |-
-          # Update package lists and install software-properties-common
-          apt-get update
-          apt-get install -y software-properties-common
-
-          # Install build tools, cython3, and other dependencies
-          apt-get install -y build-essential
-
+          # Install build dependencies
+          apk add --no-cache build-base gcc musl-dev
+          
           # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
           pip install -r requirements.txt
