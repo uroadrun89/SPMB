@@ -21,7 +21,7 @@ jobs:
           apt-get update
           apt-get upgrade -y
 
-          # Install necessary packages including `procps` and `curl`
+          # Install necessary packages including `curl`
           apt-get install -y \
             apt-utils \
             build-essential \
@@ -37,20 +37,11 @@ jobs:
             sudo \
             && apt-get clean
 
-          # Ensure pip for Python 3.11 is installed
-          apt-get install -y python3-pip
-
-          # Verify curl installation
+          # Ensure curl is installed
           curl --version || { echo "curl not installed"; exit 1; }
 
-          # Check if systemctl is needed or not
-          if command -v systemctl >/dev/null 2>&1; then
-            echo "systemctl is available"
-          else
-            echo "systemctl is not available; skipping systemd-related commands"
-          fi
-
           # Install Cython using pip
+          apt-get install -y python3-pip
           python3.11 -m pip install --upgrade pip
           python3.11 -m pip install cython
 
