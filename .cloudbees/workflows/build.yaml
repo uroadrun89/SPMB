@@ -45,19 +45,22 @@ jobs:
           # Create a directory to hold your application
           mkdir -p /tmp/app
 
+          # Verify that the directory was created
+          if [ ! -d "/tmp/app" ]; then
+            echo "/tmp/app directory creation failed. Exiting."
+            exit 1
+          fi
+
           # Copy application files to /tmp/app
           cp -r /cloudbees/workspace/* /tmp/app || { echo "Failed to copy files to /tmp/app"; exit 1; }
 
-          # Verify that files are copied and directory exists
-          if [ ! -d "/tmp/app" ]; then
-            echo "/tmp/app directory does not exist. Exiting."
+          # Verify that files are copied
+          if [ -z "$(ls -A /tmp/app)" ]; then
+            echo "/tmp/app directory is empty after copying files. Exiting."
             exit 1
           fi
 
-          if [ -z "$(ls -A /tmp/app)" ]; then
-            echo "/tmp/app directory is empty. Exiting."
-            exit 1
-          fi
+          echo "Files successfully copied to /tmp/app."
 
       - name: run application
         uses: docker://python:3.11-alpine
