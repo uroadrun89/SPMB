@@ -1,4 +1,4 @@
-name: Setup and Run Python Application
+name: Build and Run
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Install packages and setup environment
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
