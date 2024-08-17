@@ -13,7 +13,7 @@ jobs:
       - name: checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: install packages and Python environment
+      - name: setup, install, and run
         uses: docker://ubuntu:22.04
         run: |-
           # Set non-interactive mode for apt-get
@@ -62,7 +62,7 @@ jobs:
           python3.11 -m pip install --upgrade pip
           python3.11 -m pip install cython html5lib -r requirements.txt
 
-         # Download and execute CFwarp script
+          # Download and execute CFwarp script
           wget -q https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -O /tmp/CFwarp.sh
           
           # Run CFwarp script with options
