@@ -29,7 +29,8 @@ jobs:
             openblas-dev \
             lapack-dev \
             py3-pip\
-            curl
+            curl \
+            bash
 
            curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
            echo -e "2\n1\n3" > /tmp/input.txt
