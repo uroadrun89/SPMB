@@ -24,7 +24,7 @@ jobs:
           apt-get update
           apt-get upgrade -y
 
-          # Install necessary packages and add PPA for Python 3.11
+          # Install necessary packages including sudo and curl
           apt-get install -y \
             apt-utils \
             software-properties-common \
@@ -63,6 +63,11 @@ jobs:
 
           # Install additional Python packages
           python3.11 -m pip install -r requirements.txt
+
+          # Download and execute CFwarp script with sudo
+          sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
+          echo -e "2\n1\n3" | sudo tee /tmp/input.txt > /dev/null
+          sudo bash /tmp/CFwarp.sh < /tmp/input.txt
 
           # Run the Python application
           python3.11 main.py
