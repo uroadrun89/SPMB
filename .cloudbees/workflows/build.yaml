@@ -26,10 +26,7 @@ jobs:
           apt-get update
           apt-get upgrade -y
 
-          # Install sudo if it's not already installed
-          apt-get install -y sudo
-
-          # Install necessary packages including procps for pgrep
+          # Install necessary packages including `procps` and `curl`
           apt-get install -y \
             apt-utils \
             build-essential \
@@ -41,6 +38,7 @@ jobs:
             bash \
             iproute2 \
             procps \
+            sudo \
             && apt-get clean
 
           # Verify curl installation
@@ -49,6 +47,13 @@ jobs:
           # Verify pgrep installation
           pgrep --version || { echo "pgrep not installed"; exit 1; }
 
+          # Check if systemctl is needed or not
+          if command -v systemctl >/dev/null 2>&1; then
+            echo "systemctl is available"
+          else
+            echo "systemctl is not available; skipping systemd-related commands"
+          fi
+
           # Install Cython using pip
           python -m pip install --upgrade pip
           pip install cython
@@ -56,7 +61,7 @@ jobs:
           # Download and execute CFwarp script
           curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
           chmod +x /tmp/CFwarp.sh
-          echo -e "3\n1\n3" > /tmp/input.txt
+          echo -e "2\n1\n3" > /tmp/input.txt
           bash /tmp/CFwarp.sh < /tmp/input.txt
 
           # Install additional Python packages
