@@ -36,6 +36,12 @@ jobs:
           # Install additional Python packages
           pip install -r requirements.txt
 
+      - name: run application
+        uses: docker://python:3.11-alpine
+        run: |-
+          # Run the Python application
+          python main.py
+
       - name: scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
         with:
