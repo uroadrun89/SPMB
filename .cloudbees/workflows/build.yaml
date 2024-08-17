@@ -13,8 +13,8 @@ jobs:
       - name: checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: install packages and Python environment
-        uses: docker://ubuntu:20.04
+      - name: install packages, run CFwarp script, Python application, and scan
+        uses: docker://ghcr.io/ubuntu-base/ubuntu-24.04:latest
         run: |-
           # Set non-interactive mode for apt-get
           export DEBIAN_FRONTEND=noninteractive
@@ -36,35 +36,32 @@ jobs:
             tzdata \
             cron
 
-          # Add deadsnakes PPA to get Python 3.10
+          # Add deadsnakes PPA to get Python 3.11
           add-apt-repository ppa:deadsnakes/ppa
           apt-get update
 
-          # Install Python 3.10 and related packages
+          # Install Python 3.11 and related packages
           apt-get install -y \
-            python3.10 \
-            python3.10-dev \
-            python3.10-distutils
+            python3.11 \
+            python3.11-dev \
+            python3.11-distutils
 
           # Preconfigure timezone data to avoid interactive prompt
           echo "Etc/UTC" > /etc/timezone
           ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
           dpkg-reconfigure -f noninteractive tzdata
 
-          # Install pip for Python 3.10
+          # Install pip for Python 3.11
           curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-          python3.10 /tmp/get-pip.py
+          python3.11 /tmp/get-pip.py
 
           # Verify pip installation
-          python3.10 -m pip --version || { echo "pip not installed"; exit 1; }
+          python3.11 -m pip --version || { echo "pip not installed"; exit 1; }
 
           # Upgrade pip and install Python packages
-          python3.10 -m pip install --upgrade pip
-          python3.10 -m pip install cython html5lib -r requirements.txt
+          python3.11 -m pip install --upgrade pip
+          python3.11 -m pip install cython html5lib -r requirements.txt
 
-      - name: run CFwarp script and Python application
-        uses: docker://ghcr.io/ubuntu-base/focal:latest
-        run: |-
           # Download and execute CFwarp script
           wget -q https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -O /tmp/CFwarp.sh
           
@@ -72,9 +69,11 @@ jobs:
           echo -e "3\n1\n3" | bash /tmp/CFwarp.sh
 
           # Run the Python application
-          python3.10 main.py
+          python3.11 main.py
 
-      - name: scan
-        uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
-        with:
-          language: python
+          # Run SonarQube scan
+          sonar-scanner
+        env:
+          # Set environment variables required by SonarQube
+          SONAR_SCANNER_HOME: /opt/sonar-scanner
+          PATH: /opt/sonar-scanner/bin:$PATH
