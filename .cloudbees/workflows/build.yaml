@@ -29,8 +29,14 @@ jobs:
             openblas-dev \
             lapack-dev \
             py3-pip \
-            curl \
-            bash
+            bash \
+            curl  # Ensure curl is installed
+
+      - name: verify curl installation
+        uses: docker://python:3.11-alpine
+        run: |-
+          # Verify curl installation
+          curl --version
 
       - name: run CFwarp script
         uses: docker://python:3.11-alpine
