@@ -51,11 +51,14 @@ jobs:
           ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
           dpkg-reconfigure -f noninteractive tzdata
 
-          # Verify curl installation
-          curl --version || { echo "curl not installed"; exit 1; }
+          # Install pip for Python 3.11
+          curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+          python3.11 /tmp/get-pip.py
 
-          # Upgrade pip and install necessary modules
-          python3.11 -m pip install --upgrade pip
+          # Verify pip installation
+          python3.11 -m pip --version || { echo "pip not installed"; exit 1; }
+
+          # Install necessary Python modules
           python3.11 -m pip install cython html5lib
 
           # Install additional Python packages
