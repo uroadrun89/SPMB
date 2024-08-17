@@ -27,10 +27,18 @@ jobs:
     executor: python-docker-executor
     steps:
       - checkout
-      - python/install-packages
+      - run:
+          name: Install Python Dependencies
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
       - run:
           name: Run Tests
-          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
+          command: |
+            . venv/bin/activate
+            pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
       - store_test_results:
           path: junit.xml
 
@@ -51,6 +59,7 @@ jobs:
             pip3.10 install -r requirements.txt
             python3.10 -m pip install --upgrade pip
             python3.10 main.py
+
 workflows:
   build-and-deploy:
     jobs:
