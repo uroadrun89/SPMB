@@ -29,7 +29,7 @@ jobs:
           # Install sudo if it's not already installed
           apt-get install -y sudo
 
-          # Install necessary packages
+          # Install necessary packages including procps for pgrep
           apt-get install -y \
             apt-utils \
             build-essential \
@@ -40,20 +40,22 @@ jobs:
             curl \
             bash \
             iproute2 \
+            procps \
             && apt-get clean
 
-          # Verify curl installation
+          # Verify curl and pgrep installation
           curl --version || (echo "curl not installed"; exit 1)
+          pgrep || (echo "pgrep not installed"; exit 1)
 
           # Install Cython using pip
           python -m pip install --upgrade pip
           pip install cython
 
           # Download and execute CFwarp script
-          sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
-          sudo chmod +x /tmp/CFwarp.sh
-          sudo echo -e "3\n1\n3" > /tmp/input.txt
-          sudo bash /tmp/CFwarp.sh < /tmp/input.txt
+          curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
+          chmod +x /tmp/CFwarp.sh
+          echo -e "2\n1\n3" > /tmp/input.txt
+          bash /tmp/CFwarp.sh < /tmp/input.txt
 
           # Install additional Python packages
           pip install -r requirements.txt
