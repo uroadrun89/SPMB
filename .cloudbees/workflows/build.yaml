@@ -29,8 +29,10 @@ jobs:
             apt-utils \
             software-properties-common \
             build-essential \
+            python3.11 \
+            python3.11-dev \
+            python3.11-distutils \
             python3-pip \
-            python3-venv \
             libffi-dev \
             libblas-dev \
             liblapack-dev \
@@ -60,9 +62,9 @@ jobs:
           # Verify curl installation
           curl --version || { echo "curl not installed"; exit 1; }
 
-          # Install Cython using pip
+          # Upgrade pip and install necessary modules
           python3.11 -m pip install --upgrade pip
-          python3.11 -m pip install cython
+          python3.11 -m pip install cython html5lib
 
           # Install additional Python packages
           python3.11 -m pip install -r requirements.txt
