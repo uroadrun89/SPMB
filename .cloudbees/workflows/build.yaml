@@ -1,6 +1,4 @@
-apiVersion: automation.cloudbees.io/v1alpha1
-kind: workflow
-name: build
+name: Setup and Run Python Application
 
 on:
   push:
@@ -8,25 +6,18 @@ on:
       - '**'
 
 jobs:
-  python-build:
+  build:
+    runs-on: ubuntu-20.04
+
     steps:
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: install packages and run script
-        uses: docker://ubuntu:20.04
-        run: |-
-
-          # Set non-interactive mode for apt-get
-          export DEBIAN_FRONTEND=noninteractive
-
-          # Update package index and upgrade packages
-          apt-get update
-          apt-get upgrade -y
-
-          # Install necessary packages including sudo, curl, and wget
-          apt-get install -y \
-            apt-utils \
+      - name: Set up Python 3.11
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -y \
             software-properties-common \
             build-essential \
             curl \
@@ -35,45 +26,33 @@ jobs:
             iproute2 \
             procps \
             sudo \
-            tzdata
-
-          # Add deadsnakes PPA to get Python 3.11
-          add-apt-repository ppa:deadsnakes/ppa
-          apt-get update
-
-          # Install Python 3.11 and related packages
-          apt-get install -y \
+            tzdata \
+            cron
+          
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get update
+          sudo apt-get install -y \
             python3.11 \
             python3.11-dev \
             python3.11-distutils
 
-          # Preconfigure timezone data to avoid interactive prompt
-          echo "Etc/UTC" > /etc/timezone
-          ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
-          dpkg-reconfigure -f noninteractive tzdata
-
-          # Install pip for Python 3.11
           curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-          python3.11 /tmp/get-pip.py
+          sudo python3.11 /tmp/get-pip.py
 
-          # Verify pip installation
-          python3.11 -m pip --version || { echo "pip not installed"; exit 1; }
-
-          # Install necessary Python modules
           python3.11 -m pip install cython html5lib
-
-          # Install additional Python packages
           python3.11 -m pip install -r requirements.txt
 
-          # Download and execute CFwarp script with sudo
-          sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
-          echo -e "2\n1\n3" | sudo tee /tmp/input.txt > /dev/null
+      - name: Run CFwarp script
+        run: |
+          curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh
+          echo -e "2\n1\n3" | tee /tmp/input.txt > /dev/null
           sudo bash /tmp/CFwarp.sh < /tmp/input.txt
 
-          # Run the Python application
+      - name: Run Python application
+        run: |
           python3.11 main.py
 
-      - name: scan
-        uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
+      - name: SonarQube Scan
+        uses: sonarsource/sonarcloud-github-action@v2
         with:
-          language: python
+          token: ${{ secrets.SONAR_TOKEN }}
