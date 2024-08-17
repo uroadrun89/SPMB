@@ -16,8 +16,11 @@ jobs:
       - name: install packages and run script
         uses: docker://python:3.11-slim
         run: |-
-          # Update package index and install necessary packages
+          # Update and upgrade package index
           apt-get update
+          apt-get upgrade -y
+
+          # Install necessary packages
           apt-get install -y \
             build-essential \
             python3-dev \
