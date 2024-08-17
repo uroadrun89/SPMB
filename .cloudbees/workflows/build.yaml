@@ -16,6 +16,19 @@ jobs:
       - name: install packages
         uses: docker://python:3.13.0a4-alpine3.19
         run: |-
+          # Update package index and install necessary packages
+          apk update
+          apk add --no-cache \
+            build-base \
+            cython \
+            python3-dev \
+            musl-dev \
+            gcc \
+            g++ \
+            libffi-dev \
+            openblas-dev
+
+          # Upgrade pip and install Python packages
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
