@@ -47,7 +47,6 @@ jobs:
       - name: Run Python Application
         type: shell
         script: python3.11 main.py
-
       - name: SonarQube Scan
         type: shell
         script: sonar-scanner
