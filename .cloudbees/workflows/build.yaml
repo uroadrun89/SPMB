@@ -14,7 +14,7 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: setup environment, install packages, and run application
-        uses: docker://debian/bookworm-slim
+        uses: docker://debian:latest
         run: |-
           #!/bin/bash
           set -e
