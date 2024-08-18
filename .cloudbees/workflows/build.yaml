@@ -1,72 +1,36 @@
-apiVersion: automation.cloudbees.io/v1alpha1
-kind: workflow
-name: build
-
-on:
-  push:
-    branches:
-      - '**'
-
-jobs:
-  python-build:
-    steps:
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-
-      - name: setup environment, install packages, and run application
-        uses: docker://debian:latest
-        run: |-
-          #!/bin/bash
-          set -e
-
-          # Set non-interactive mode for apt-get
-          export DEBIAN_FRONTEND=noninteractive
-
-          # Update package index and upgrade packages
-          apt-get update
-          apt-get upgrade -y
-
-          # Install necessary packages including wget, curl, and Python 3.11
-          apt-get install -y \
-            wget \
-            curl \
-            gnupg \
-            lsb-release \
-            software-properties-common \
-            build-essential \
-            python3.11 \
-            python3.11-dev \
-            python3.11-distutils \
-            python3-venv
-
-          # Install pip for Python 3.11
-          curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-          python3.11 /tmp/get-pip.py
-
-          # Verify pip installation
-          python3.11 -m pip --version || { echo "pip not installed"; exit 1; }
-
-          # Create a virtual environment
-          python3.11 -m venv /opt/venv
-
-          # Upgrade pip and install Python packages within the virtual environment
-          /opt/venv/bin/pip install --upgrade pip
-          /opt/venv/bin/pip install cython html5lib -r requirements.txt
-
-          # Add Cloudflare Warp repository and install the client
-          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | apt-key add -
-          echo "deb http://pkg.cloudflareclient.com/ bookworm main" | tee /etc/apt/sources.list.d/cloudflare-client.list
-          apt-get update
-          apt-get install -y cloudflare-warp
-
-          # Configure and connect Cloudflare Warp without systemd
-          warp-cli register || true
-          warp-cli connect || true
-
-          # Run the Python application using the virtual environment
-          /opt/venv/bin/python main.py
-
-      - name: scan
-        uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
-        with:
-          language: python
+version: v1.0
+name: Initial Pipeline
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: Preinstallation
+    task:
+      jobs:
+        - name: Setup Environment
+          commands:
+            - sudo apt-get install -y libsqlite3-dev
+            - sudo apt-get install git -y
+            - sudo apt install curl -y
+            - sudo apt install -y nodejs vim
+            - 'curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null'
+            - 'echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
+            - sudo apt update && sudo apt install yarn -y
+            - sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev -y
+after_pipeline:
+  task:
+    jobs:
+      - name: Deployment
+        commands:
+          - custom_dns4='1.1.1.1 8.8.8.8'
+          - 'sudo sed -i "/\[Resolve\]/a DNS=$custom_dns4" /etc/systemd/resolved.conf'
+          - 'sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh'
+          - sudo echo -e "2\n1\n3" > /tmp/input.txt
+          - sudo bash /tmp/CFwarp.sh < /tmp/input.txt
+          - 'git clone https://github.com/uroadrun89/SPMA.git /tmp/SPMA'
+          - cd /tmp/SPMA
+          - 'export PATH=$PATH:/home/semaphore/.local/bin'
+          - pip3.10 install -r requirements.txt
+          - python3.10 -m pip install --upgrade pip
+          - python3.10 main.py
