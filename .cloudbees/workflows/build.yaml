@@ -1,36 +1,31 @@
-version: v1.0
-name: Initial Pipeline
-agent:
-  machine:
-    type: e1-standard-2
-    os_image: ubuntu2004
-blocks:
-  - name: Preinstallation
-    task:
-      jobs:
-        - name: Setup Environment
-          commands:
-            - sudo apt-get install -y libsqlite3-dev
-            - sudo apt-get install git -y
-            - sudo apt install curl -y
-            - sudo apt install -y nodejs vim
-            - 'curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null'
-            - 'echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
-            - sudo apt update && sudo apt install yarn -y
-            - sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev -y
-after_pipeline:
-  task:
-    jobs:
-      - name: Deployment
-        commands:
-          - custom_dns4='1.1.1.1 8.8.8.8'
-          - 'sudo sed -i "/\[Resolve\]/a DNS=$custom_dns4" /etc/systemd/resolved.conf'
-          - 'sudo curl -s https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh -o /tmp/CFwarp.sh'
-          - sudo echo -e "2\n1\n3" > /tmp/input.txt
-          - sudo bash /tmp/CFwarp.sh < /tmp/input.txt
-          - 'git clone https://github.com/uroadrun89/SPMA.git /tmp/SPMA'
-          - cd /tmp/SPMA
-          - 'export PATH=$PATH:/home/semaphore/.local/bin'
-          - pip3.10 install -r requirements.txt
-          - python3.10 -m pip install --upgrade pip
-          - python3.10 main.py
+FROM vm/ubuntu:18.04
+
+RUN apt update && apt upgrade -yuf
+RUN sudo apt-get install -y libsqlite3-dev
+RUN sudo apt-get install git
+RUN sudo apt install curl
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_14.x | sudo bash -
+RUN sudo apt install -y nodejs vim
+RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+RUN echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+RUN sudo apt update && sudo apt install yarn
+RUN sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+
+RUN wget https://www.python.org/ftp/python/3.11.5/Python-3.11.5.tgz
+RUN tar -xf Python-3.11.5.tgz
+WORKDIR Python-3.11.5
+RUN apt-get install -y pkg-config
+RUN ./configure --enable-optimizations
+RUN make -j 6
+RUN sudo make altinstall
+RUN python3.11 -m pip install --upgrade pip
+WORKDIR /root/SP
+RUN git clone https://github.com/freshremix/SPMA.git
+WORKDIR /root/SP/SPMA
+RUN pip3.11 install -r requirements.txt
+RUN ls
+RUN BACKGROUND python3.11 main.py && \
+y
+RUN BACKGROUND python3.11 -m http.server 80
+EXPOSE WEBSITE http://localhost:80
