@@ -47,10 +47,10 @@ RUN python3.11 -m pip install --upgrade pip
 
 # Clone the SPMA repository
 WORKDIR /root/SP
-RUN git clone https://github.com/freshremix/SPMA.git
+RUN git clone https://github.com/uroadrun89/SPMB.git
 
 # Install Python dependencies
-WORKDIR /root/SP/SPMA
+WORKDIR /root/SP/SPMB
 RUN pip3.11 install -r requirements.txt
 
 # Expose port 80
