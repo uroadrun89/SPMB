@@ -1,31 +1,39 @@
-FROM vm/ubuntu:18.04
+# Base image
+FROM ubuntu:18.04
 
-RUN apt update && apt upgrade -yuf
-RUN sudo apt-get install -y libsqlite3-dev
-RUN sudo apt-get install git
-RUN sudo apt install curl
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo bash -
-RUN curl -fsSL https://deb.nodesource.com/setup_14.x | sudo bash -
-RUN sudo apt install -y nodejs vim
-RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
-RUN echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-RUN sudo apt update && sudo apt install yarn
-RUN sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+# Install system dependencies
+RUN apt update && apt upgrade -y
+RUN apt-get install -y libsqlite3-dev git curl vim pkg-config build-essential zlib1g-dev libncurses5-dev \
+    libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libbz2-dev wget
 
+# Set up Node.js (v16 and v14 repositories are both listed, but we will use only one version)
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get install -y nodejs
+
+# Set up Yarn package manager
+RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/yarnkey.gpg
+RUN echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt update && apt install -y yarn
+
+# Install Python 3.11
 RUN wget https://www.python.org/ftp/python/3.11.5/Python-3.11.5.tgz
 RUN tar -xf Python-3.11.5.tgz
 WORKDIR Python-3.11.5
-RUN apt-get install -y pkg-config
 RUN ./configure --enable-optimizations
-RUN make -j 6
-RUN sudo make altinstall
+RUN make -j6
+RUN make altinstall
 RUN python3.11 -m pip install --upgrade pip
+
+# Clone your repository
 WORKDIR /root/SP
 RUN git clone https://github.com/uroadrun89/SPMB.git
+
+# Install Python dependencies
 WORKDIR /root/SP/SPMB
 RUN pip3.11 install -r requirements.txt
-RUN ls
-RUN BACKGROUND python3.11 main.py && \
-y
-RUN BACKGROUND python3.11 -m http.server 80
-EXPOSE WEBSITE http://localhost:80
+
+# Expose the port for HTTP server
+EXPOSE 80
+
+# Run the application in the background using TeamCode’s approach
+CMD ["bash", "-c", "python3.11 main.py & python3.11 -m http.server 80"]
