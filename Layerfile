@@ -1,4 +1,4 @@
-# Base image
+# Use the official Ubuntu 18.04 image
 FROM ubuntu:18.04
 
 # Install system dependencies
@@ -6,7 +6,7 @@ RUN apt update && apt upgrade -y
 RUN apt-get install -y libsqlite3-dev git curl vim pkg-config build-essential zlib1g-dev libncurses5-dev \
     libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libbz2-dev wget
 
-# Set up Node.js (v16 and v14 repositories are both listed, but we will use only one version)
+# Set up Node.js (v16)
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 
