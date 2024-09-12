@@ -20,7 +20,7 @@ RUN wget https://www.python.org/ftp/python/3.11.5/Python-3.11.5.tgz
 RUN tar -xf Python-3.11.5.tgz
 WORKDIR Python-3.11.5
 RUN ./configure --enable-optimizations
-RUN make -j6
+RUN make -j 6
 RUN make altinstall
 RUN python3.11 -m pip install --upgrade pip
 
